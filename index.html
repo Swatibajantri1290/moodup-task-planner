@@ -1,0 +1,192 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MoodUp - Task Planner</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #84fab0, #8fd3f4);
+      margin: 0;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    #quoteBox {
+      margin: 10px auto 20px;
+      font-style: italic;
+      font-size: 18px;
+      max-width: 600px;
+      color: #222;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input[type="text"] {
+      width: 250px;
+    }
+
+    #taskList {
+      margin-top: 20px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .task {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .task.done {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .task-buttons button {
+      margin-left: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .timestamp {
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 MoodUp - Task Planner</h1>
+  <div id="quoteBox"></div>
+
+  <input type="text" id="taskInput" placeholder="Enter your task..." />
+  <button onclick="addTask()">➕ Add Task</button>
+
+  <div id="taskList"></div>
+
+  <script>
+    let tasks = [];
+
+    const quotes = [
+      "Believe you can and you're halfway there.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Great things never come from comfort zones.",
+      "Your limitation—it’s only your imagination.",
+      "Dream it. Wish it. Do it.",
+      "Success doesn’t just find you. You have to go out and get it.",
+      "The harder you work for something, the greater you’ll feel when you achieve it.",
+      "Don’t stop when you’re tired. Stop when you’re done.",
+      "Do something today that your future self will thank you for.",
+      "It’s going to be hard, but hard does not mean impossible."
+    ];
+
+    function showMotivationalQuote() {
+      const quoteBox = document.getElementById("quoteBox");
+      const randomIndex = Math.floor(Math.random() * quotes.length);
+      quoteBox.textContent = `"${quotes[randomIndex]}"`;
+    }
+
+    // Load tasks from localStorage
+    window.addEventListener("DOMContentLoaded", () => {
+      showMotivationalQuote(); // show quote on load
+
+      const saved = localStorage.getItem("tasks");
+      if (saved) {
+        tasks = JSON.parse(saved);
+        renderTasks();
+      }
+    });
+
+    function saveTasksToLocalStorage() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newTask = {
+        text,
+        date: new Date().toLocaleString(),
+        completed: false
+      };
+
+      tasks.push(newTask);
+      input.value = "";
+      saveTasksToLocalStorage();
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const taskDiv = document.createElement("div");
+        taskDiv.className = "task" + (task.completed ? " done" : "");
+
+        taskDiv.innerHTML = `
+          <div>
+            <strong>${task.text}</strong><br/>
+            <span class="timestamp">${task.date}</span>
+          </div>
+          <div class="task-buttons">
+            <button onclick="toggleComplete(${index})">✅</button>
+            <button onclick="editTask(${index})">✏️</button>
+            <button onclick="deleteTask(${index})">🗑️</button>
+          </div>
+        `;
+
+        list.appendChild(taskDiv);
+      });
+    }
+
+    function deleteTask(index) {
+      if (confirm("Delete this task?")) {
+        tasks.splice(index, 1);
+        saveTasksToLocalStorage();
+        renderTasks();
+      }
+    }
+
+    function toggleComplete(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasksToLocalStorage();
+      renderTasks();
+    }
+
+    function editTask(index) {
+      const newText = prompt("Edit your task:", tasks[index].text);
+      if (newText !== null && newText.trim() !== "") {
+        tasks[index].text = newText.trim();
+        tasks[index].date = new Date().toLocaleString();
+        saveTasksToLocalStorage();
+        renderTasks();
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+
